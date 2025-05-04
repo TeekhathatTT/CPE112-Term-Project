@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Queue;
@@ -44,7 +45,7 @@ public class KrungKringCafeGUI {
 
             // Load and resize image
             ImageIcon icon = new ImageIcon(menu.getImagePath());
-            Image img = icon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+            Image img = getScaledImage(icon.getImage(), 120, 120);
             JLabel imageLabel = new JLabel(new ImageIcon(img));
             imageLabel.setHorizontalAlignment(JLabel.CENTER);
 
@@ -113,10 +114,11 @@ public class KrungKringCafeGUI {
         JFrame detailFrame = new JFrame(menu.getName());
         detailFrame.setSize(400, 500);
         detailFrame.setLayout(new BorderLayout());
+        detailFrame.setBackground(Color.white);
     
         // Load big image
         ImageIcon icon = new ImageIcon(menu.getImagePath());
-        Image img = icon.getImage().getScaledInstance(300, 200, Image.SCALE_SMOOTH);
+        Image img = getScaledImage(icon.getImage(), 200, 200);
         JLabel imageLabel = new JLabel(new ImageIcon(img));
         imageLabel.setHorizontalAlignment(JLabel.CENTER);
     
@@ -177,6 +179,17 @@ public class KrungKringCafeGUI {
         resultFrame.add(okButton, BorderLayout.SOUTH);
     
         resultFrame.setVisible(true);
+    }    
+
+    private Image getScaledImage(Image srcImg, int w, int h) {
+        BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = resizedImg.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.drawImage(srcImg, 0, 0, w, h, null);
+        g2.dispose();
+        return resizedImg;
     }    
 
     public static void main(String[] args) {
