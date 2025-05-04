@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Queue;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class KrungKringCafeGUI {
     private JFrame frame;
     private Font promptFont;
@@ -17,7 +20,9 @@ public class KrungKringCafeGUI {
 
         frame = new JFrame("KrungKring Cafe");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        // frame.setSize(800, 600);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Set full screen
+        // frame.setUndecorated(true); // Remove window frame
         frame.setLayout(new BorderLayout());
 
         // Set cute font and pastel colors
@@ -45,7 +50,7 @@ public class KrungKringCafeGUI {
 
             // Load and resize image
             ImageIcon icon = new ImageIcon(menu.getImagePath());
-            Image img = getScaledImage(icon.getImage(), 120, 120);
+            Image img = getScaledImage(icon.getImage(), 240, 240);
             JLabel imageLabel = new JLabel(new ImageIcon(img));
             imageLabel.setHorizontalAlignment(JLabel.CENTER);
 
@@ -140,7 +145,8 @@ public class KrungKringCafeGUI {
         startButton.setForeground(Color.WHITE);
         startButton.addActionListener(e -> {
             Queue<DrinkStruct> picked = IngredientPicker.pickIngredients(menu.getSutraQueue());
-            showFinalSelection(picked);
+            detailFrame.dispose(); // Close menu frame after picked ingredient
+            showFinalSelection(picked, menu.getImagePath());
         });
     
         detailFrame.add(startButton, BorderLayout.SOUTH);
@@ -148,11 +154,42 @@ public class KrungKringCafeGUI {
         detailFrame.setVisible(true);
     }
     
-    private void showFinalSelection(Queue<DrinkStruct> picked) {
+    private void showFinalSelection(Queue<DrinkStruct> picked, String imagePath) {
         JFrame resultFrame = new JFrame("Your Drink is Ready!");
-        resultFrame.setSize(400, 400);
+        resultFrame.setSize(600, 400);
         resultFrame.setLayout(new BorderLayout());
     
+        // Left panel (img)
+        ImageIcon icon = new ImageIcon(imagePath);
+        Image img = getScaledImage(icon.getImage(), 240, 240);
+        JPanel imagePanel = new JPanel() {
+            int revealWidth = 0;
+            {
+                setPreferredSize(new Dimension(240, 240));
+                Timer timer = new Timer(10, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        revealWidth += 10;  // Reveal by 5 px
+                        if (revealWidth >= img.getWidth(null)) {
+                            revealWidth = img.getWidth(null);
+                            ((Timer) e.getSource()).stop();  // Stop when fully revealed
+                        }
+                        repaint();  // Update img
+                    }
+                });
+                timer.start();
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(img,
+                        0, 0, revealWidth, img.getHeight(null),  // Destination (panel)
+                        0, 0, revealWidth, img.getHeight(null),  // Source (image)
+                        this);
+            }
+        };
+        resultFrame.add(imagePanel, BorderLayout.WEST);
+
+        // Right panel (text)
         JTextArea resultArea = new JTextArea();
         resultArea.setWrapStyleWord(true);
         resultArea.setLineWrap(true);
@@ -170,6 +207,7 @@ public class KrungKringCafeGUI {
         JScrollPane scrollPane = new JScrollPane(resultArea);
         resultFrame.add(scrollPane, BorderLayout.CENTER);
     
+        // Bottom
         JButton okButton = new JButton("OK");
         okButton.setFont(promptFont.deriveFont(Font.BOLD, 18f));
         okButton.setBackground(new Color(145,135,127));
