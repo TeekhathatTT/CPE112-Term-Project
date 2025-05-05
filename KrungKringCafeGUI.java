@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Queue;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -13,7 +12,6 @@ public class KrungKringCafeGUI {
     private Font promptFont;
     private JPanel menuPanel;
     private JScrollPane scrollPane;
-
 
     public KrungKringCafeGUI() {
         loadCustomFont(); // Load the Prompt font first!
@@ -25,19 +23,16 @@ public class KrungKringCafeGUI {
         // frame.setUndecorated(true); // Remove window frame
         frame.setLayout(new BorderLayout());
 
-        // Set cute font and pastel colors
-        Color softBrown = new Color(234,228,224);
-
         // Title label
         JLabel titleLabel = new JLabel("KrungKring Kin Lao Gun", JLabel.CENTER);
         titleLabel.setFont(promptFont.deriveFont(Font.BOLD, 28f)); // use custom font
-        titleLabel.setForeground(new Color(83, 61, 44));
+        titleLabel.setForeground(AppColors.DARK_BROWN);
         frame.add(titleLabel, BorderLayout.NORTH);
 
         // Menu Panel
         menuPanel = new JPanel();
         menuPanel.setLayout(new GridLayout(0, 3, 10, 10));
-        menuPanel.setBackground(softBrown);
+        menuPanel.setBackground(AppColors.LIGHT_BROWN);
         scrollPane = new JScrollPane(menuPanel);
         frame.add(scrollPane, BorderLayout.CENTER);
 
@@ -57,14 +52,14 @@ public class KrungKringCafeGUI {
             // Menu name label
             JLabel nameLabel = new JLabel(menu.getName(), JLabel.CENTER);
             nameLabel.setFont(promptFont.deriveFont(Font.PLAIN, 18f));
-            nameLabel.setForeground(new Color(83, 61, 44));
+            nameLabel.setForeground(AppColors.DARK_BROWN);
             nameLabel.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
             nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             // Description label
             JLabel descLabel = new JLabel(menu.getDescription(), JLabel.CENTER);
             descLabel.setFont(promptFont.deriveFont(Font.PLAIN, 14f));
-            descLabel.setForeground(new Color(152, 141, 130));
+            descLabel.setForeground(AppColors.MEDIUM_BROWN);
             descLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
             descLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -95,7 +90,7 @@ public class KrungKringCafeGUI {
         // Exit Button
         JButton exitButton = new JButton("Exit");
         exitButton.setFont(promptFont.deriveFont(Font.PLAIN, 20f));
-        exitButton.setBackground(new Color(145,135,127));
+        exitButton.setBackground(AppColors.MEDIUM_BROWN);
         exitButton.setForeground(Color.WHITE);
         exitButton.addActionListener(e -> System.exit(0));
         frame.add(exitButton, BorderLayout.SOUTH);
@@ -134,9 +129,10 @@ public class KrungKringCafeGUI {
         sutraArea.setEditable(false);
         sutraArea.setFocusable(false); // Remove caret
         sutraArea.setFont(new Font("Prompt", Font.PLAIN, 16));
-        sutraArea.setBackground(new Color(234,228,224));
+        sutraArea.setBackground(AppColors.LIGHT_BROWN);
+        sutraArea.setForeground(AppColors.DARK_BROWN);
         sutraArea.setBorder(BorderFactory.createCompoundBorder(
-            sutraArea.getBorder(), 
+            sutraArea.getBorder(),
             BorderFactory.createEmptyBorder(20, 20, 20, 20))); // Padding 20px
         JScrollPane scrollPane = new JScrollPane(sutraArea);
     
@@ -145,16 +141,14 @@ public class KrungKringCafeGUI {
     
         JButton startButton = new JButton("Start Picking Ingredients");
         startButton.setFont(promptFont.deriveFont(Font.BOLD, 20f));
-        startButton.setBackground(new Color(145,135,127));
+        startButton.setBackground(AppColors.MEDIUM_BROWN);
         startButton.setForeground(Color.WHITE);
         startButton.addActionListener(e -> {
             Queue<DrinkStruct> picked = IngredientPicker.pickIngredients(menu.getSutraQueue());
             detailFrame.dispose(); // Close menu frame after picked ingredient
             showFinalSelection(picked, menu.getImagePath());
         });
-    
         detailFrame.add(startButton, BorderLayout.SOUTH);
-    
         detailFrame.setVisible(true);
     }
     
@@ -176,7 +170,7 @@ public class KrungKringCafeGUI {
         resultArea.setEditable(false);
         resultArea.setFocusable(false); // Remove caret
         resultArea.setFont(promptFont.deriveFont(Font.PLAIN, 16));
-        resultArea.setBackground(new Color(234,228,224));
+        resultArea.setBackground(AppColors.LIGHT_BROWN);
         resultArea.setBorder(BorderFactory.createCompoundBorder(
             resultArea.getBorder(), 
             BorderFactory.createEmptyBorder(20, 20, 20, 20))); // Padding 20px
@@ -194,7 +188,7 @@ public class KrungKringCafeGUI {
         // Bottom
         JButton okButton = new JButton("OK");
         okButton.setFont(promptFont.deriveFont(Font.BOLD, 18f));
-        okButton.setBackground(new Color(145,135,127));
+        okButton.setBackground(AppColors.MEDIUM_BROWN);
         okButton.setForeground(Color.WHITE);
         okButton.addActionListener(e -> resultFrame.dispose());
     
