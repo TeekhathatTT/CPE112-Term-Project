@@ -132,8 +132,12 @@ public class KrungKringCafeGUI {
         sutraArea.setWrapStyleWord(true);
         sutraArea.setLineWrap(true);
         sutraArea.setEditable(false);
+        sutraArea.setFocusable(false); // Remove caret
         sutraArea.setFont(new Font("Prompt", Font.PLAIN, 16));
         sutraArea.setBackground(new Color(234,228,224));
+        sutraArea.setBorder(BorderFactory.createCompoundBorder(
+            sutraArea.getBorder(), 
+            BorderFactory.createEmptyBorder(20, 20, 20, 20))); // Padding 20px
         JScrollPane scrollPane = new JScrollPane(sutraArea);
     
         detailFrame.add(imageLabel, BorderLayout.NORTH);
@@ -162,31 +166,7 @@ public class KrungKringCafeGUI {
         // Left panel (img)
         ImageIcon icon = new ImageIcon(imagePath);
         Image img = getScaledImage(icon.getImage(), 240, 240);
-        JPanel imagePanel = new JPanel() {
-            int revealWidth = 0;
-            {
-                setPreferredSize(new Dimension(240, 240));
-                Timer timer = new Timer(10, new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        revealWidth += 10;  // Reveal by 5 px
-                        if (revealWidth >= img.getWidth(null)) {
-                            revealWidth = img.getWidth(null);
-                            ((Timer) e.getSource()).stop();  // Stop when fully revealed
-                        }
-                        repaint();  // Update img
-                    }
-                });
-                timer.start();
-            }
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(img,
-                        0, 0, revealWidth, img.getHeight(null),  // Destination (panel)
-                        0, 0, revealWidth, img.getHeight(null),  // Source (image)
-                        this);
-            }
-        };
+        JPanel imagePanel = getAnimatedImagePanel(240, 400, img, 10);
         resultFrame.add(imagePanel, BorderLayout.WEST);
 
         // Right panel (text)
@@ -194,8 +174,12 @@ public class KrungKringCafeGUI {
         resultArea.setWrapStyleWord(true);
         resultArea.setLineWrap(true);
         resultArea.setEditable(false);
+        resultArea.setFocusable(false); // Remove caret
         resultArea.setFont(promptFont.deriveFont(Font.PLAIN, 16));
         resultArea.setBackground(new Color(234,228,224));
+        resultArea.setBorder(BorderFactory.createCompoundBorder(
+            resultArea.getBorder(), 
+            BorderFactory.createEmptyBorder(20, 20, 20, 20))); // Padding 20px
     
         StringBuilder sb = new StringBuilder();
         sb.append("You've chosen:\n\n");
@@ -228,7 +212,38 @@ public class KrungKringCafeGUI {
         g2.drawImage(srcImg, 0, 0, w, h, null);
         g2.dispose();
         return resizedImg;
-    }    
+    }
+
+    // Speed is px per tick
+    private JPanel getAnimatedImagePanel(int panelWidth, int panelHeight, Image img, int speed) {
+        JPanel animatedPanel = new JPanel() {
+            int revealWidth = 0;
+            {
+                setPreferredSize(new Dimension(panelWidth, panelHeight));
+                // Timer fire every 10 milliseconds
+                Timer timer = new Timer(10, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        revealWidth += speed;  // Reveal by speed px
+                        if (revealWidth >= img.getWidth(null)) {
+                            revealWidth = img.getWidth(null);
+                            ((Timer) e.getSource()).stop();  // Stop when fully revealed
+                        }
+                        repaint();  // Update img
+                    }
+                });
+                timer.start();
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(img,
+                        0, 0, revealWidth, img.getHeight(null), // Destination (panel)
+                        0, 0, revealWidth, img.getHeight(null), // Source (image)
+                        this);
+            }
+        };
+        return animatedPanel;
+    }
 
     public static void main(String[] args) {
         new KrungKringCafeGUI();
