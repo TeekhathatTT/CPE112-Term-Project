@@ -5,19 +5,22 @@ import java.util.*;
 
 public class IngredientPicker {
     public static Queue<DrinkStruct> pickIngredients(Queue<String> components) {
+        // Basically component queue. This is a copy of original components queue
+        // Queue is reference type so if I don't make copy, it will affect original one
+        Queue<String> cQ = new LinkedList<>(components);
         Queue<DrinkStruct> pickedIngredients = new LinkedList<>();
 
         // Pick ingredient for each component
-        while (!components.isEmpty()) {
+        while (!cQ.isEmpty()) {
             // Get component in the queue and get user's option
-            String componentName = components.remove();
-            DrinkStruct root = findRootStruct(componentName);
+            String current = cQ.remove();
+            DrinkStruct root = findRootStruct(current);
             if (root != null) {
                 DrinkStruct chosen = IngredientDialog.pickIngredient(root);
                 if (chosen != null) pickedIngredients.add(chosen);
             } else {
                 // Component Tree doesn't exist. (Lemon juice, etc.)
-                pickedIngredients.add(new DrinkStruct(componentName));
+                pickedIngredients.add(new DrinkStruct(current));
             }
         }
         return pickedIngredients;
@@ -37,13 +40,12 @@ public class IngredientPicker {
     static class IngredientDialog extends JDialog {
         private final JPanel contentPanel = new JPanel();
         private final JLabel pathLabel = new JLabel();
-        // Store path history
-        private final Stack<DrinkStruct> path = new Stack<>();
+        private final Stack<DrinkStruct> path = new Stack<>(); // Store path history
         private DrinkStruct result = null;
 
         public static DrinkStruct pickIngredient(DrinkStruct root) {
             IngredientDialog dialog = new IngredientDialog(root);
-            dialog.setVisible(true); // Blocks until dialog is disposed
+            dialog.setVisible(true);
             return dialog.result;
         }
 
@@ -51,13 +53,13 @@ public class IngredientPicker {
         private IngredientDialog(DrinkStruct root) {
             path.push(root);
             setTitle("Choose Ingredient");
-            setModal(true);
+            setModal(true); // Block all other window until it's closed
             setSize(400, 300);
             setLocationRelativeTo(null);
             setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             setLayout(new BorderLayout());
 
-            // Add path text at head
+            // Add path at the head of the box
             pathLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
             add(pathLabel, BorderLayout.NORTH);
 
@@ -74,12 +76,14 @@ public class IngredientPicker {
             contentPanel.removeAll();
             updatePathLabel();
 
+            // Leaf node found, close the window
             if (current.getChildren().isEmpty()) {
                 result = current;
                 dispose();
                 return;
             }
 
+            // Show back button only when user moved from root
             if (path.size() > 1) {
                 JButton backButton = new JButton("⬅ Back");
                 backButton.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -88,22 +92,24 @@ public class IngredientPicker {
                     showOptions(path.peek());
                 });
                 contentPanel.add(backButton);
-                contentPanel.add(Box.createVerticalStrut(10));
+                contentPanel.add(Box.createVerticalStrut(10)); // Just like CSS margin
             }
 
+            // Show option button
             for (DrinkStruct child : current.getChildren()) {
                 JButton button = new JButton(child.getName());
                 button.setAlignmentX(Component.LEFT_ALIGNMENT);
+                // If option is clicked, add to path & go deeper into that option.
                 button.addActionListener((ActionEvent e) -> {
                     path.push(child);
                     showOptions(child);
                 });
                 contentPanel.add(button);
-                contentPanel.add(Box.createVerticalStrut(5));
+                contentPanel.add(Box.createVerticalStrut(5)); // Margin
             }
 
-            contentPanel.revalidate();
-            contentPanel.repaint();
+            contentPanel.revalidate(); // Recalculate layout
+            contentPanel.repaint(); // Redraw whole thing or it will overlap with old ones ;)
         }
 
         private void updatePathLabel() {
