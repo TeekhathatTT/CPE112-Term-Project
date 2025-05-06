@@ -5,8 +5,8 @@ import java.util.*;
 
 public class IngredientPicker {
     public static Queue<DrinkStruct> pickIngredients(Queue<String> components) {
-        // Basically component queue. This is a copy of original components queue
-        // Queue is reference type so if I don't make copy, it will affect original one
+        // cQ = components queue. This is a copy of original components
+        // Queue is reference type, if I don't make copy, it will affect the original one
         Queue<String> cQ = new LinkedList<>(components);
         Queue<DrinkStruct> pickedIngredients = new LinkedList<>();
 
@@ -51,7 +51,7 @@ public class IngredientPicker {
 
         // Picking form
         private IngredientDialog(DrinkStruct root) {
-            path.push(root);
+            path.push(root); // Update path
             setTitle("Choose Ingredient");
             setModal(true); // Block all other window until it's closed
             setSize(400, 300);
@@ -60,7 +60,9 @@ public class IngredientPicker {
             setLayout(new BorderLayout());
 
             // Add path at the head of the box
-            pathLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            pathLabel.setFont(new Font("Prompt", Font.PLAIN, 14));
+            pathLabel.setForeground(AppColors.DARK_BROWN);
+            pathLabel.setBackground(AppColors.LIGHT_BROWN);
             add(pathLabel, BorderLayout.NORTH);
 
             contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
@@ -83,21 +85,25 @@ public class IngredientPicker {
                 return;
             }
 
-            // Show back button only when user moved from root
+            // Show back button only when user moved from root node
             if (path.size() > 1) {
                 JButton backButton = new JButton("⬅ Back");
+                backButton.setBackground(AppColors.LIGHT_BROWN);
+                backButton.setForeground(AppColors.DARK_BROWN);
                 backButton.setAlignmentX(Component.LEFT_ALIGNMENT);
                 backButton.addActionListener(e -> {
-                    path.pop();
+                    path.pop(); // Backtrack
                     showOptions(path.peek());
                 });
                 contentPanel.add(backButton);
-                contentPanel.add(Box.createVerticalStrut(10)); // Just like CSS margin
+                contentPanel.add(Box.createVerticalStrut(10)); // Similar to CSS margin
             }
 
-            // Show option button
+            // Show option buttons
             for (DrinkStruct child : current.getChildren()) {
                 JButton button = new JButton(child.getName());
+                button.setBackground(AppColors.MEDIUM_BROWN);
+                button.setForeground(Color.WHITE);
                 button.setAlignmentX(Component.LEFT_ALIGNMENT);
                 // If option is clicked, add to path & go deeper into that option.
                 button.addActionListener((ActionEvent e) -> {

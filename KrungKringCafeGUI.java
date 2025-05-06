@@ -160,7 +160,7 @@ public class KrungKringCafeGUI {
         // Left panel (img)
         ImageIcon icon = new ImageIcon(imagePath);
         Image img = getScaledImage(icon.getImage(), 240, 240);
-        JPanel imagePanel = getAnimatedImagePanel(240, 400, img, 10);
+        JPanel imagePanel = getAnimatedImagePanel(240, 400, img, 100);
         resultFrame.add(imagePanel, BorderLayout.WEST);
 
         // Right panel (text)
@@ -171,16 +171,25 @@ public class KrungKringCafeGUI {
         resultArea.setFocusable(false); // Remove caret
         resultArea.setFont(promptFont.deriveFont(Font.PLAIN, 16));
         resultArea.setBackground(AppColors.LIGHT_BROWN);
+        resultArea.setForeground(AppColors.DARK_BROWN);
         resultArea.setBorder(BorderFactory.createCompoundBorder(
             resultArea.getBorder(), 
             BorderFactory.createEmptyBorder(20, 20, 20, 20))); // Padding 20px
     
         StringBuilder sb = new StringBuilder();
         sb.append("You've chosen:\n\n");
-        for (DrinkStruct ingredient : picked) {
-            sb.append("- ").append(ingredient.getName()).append("\n");
-        }
-        resultArea.setText(sb.toString());
+        // Show each element every 0.5 sec (just for decoration)
+        Timer timer = new Timer(500, null); // 500 ms = 0.5 sec
+        timer.addActionListener(e -> {
+            if (!picked.isEmpty()) {
+                // Dequeue and output one by one
+                sb.append("- ").append(picked.remove().getName()).append("\n");
+                resultArea.setText(sb.toString());
+            } else {
+                timer.stop();
+            }
+        });
+        timer.start();
     
         JScrollPane scrollPane = new JScrollPane(resultArea);
         resultFrame.add(scrollPane, BorderLayout.CENTER);
@@ -208,8 +217,8 @@ public class KrungKringCafeGUI {
         return resizedImg;
     }
 
-    // Speed is px per tick
-    private JPanel getAnimatedImagePanel(int panelWidth, int panelHeight, Image img, int speed) {
+    // Speed is how fast your img show. in 10ms unit (if you need roughly 2sec, input 200)
+    private JPanel getAnimatedImagePanel(int panelWidth, int panelHeight, Image img, int time) {
         JPanel animatedPanel = new JPanel() {
             int revealWidth = 0;
             {
@@ -217,7 +226,7 @@ public class KrungKringCafeGUI {
                 // Timer fire every 10 milliseconds
                 Timer timer = new Timer(10, new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        revealWidth += speed;  // Reveal by speed px
+                        revealWidth += panelWidth/time;  // Reveal by ... px every 10ms (v = s/t)
                         if (revealWidth >= img.getWidth(null)) {
                             revealWidth = img.getWidth(null);
                             ((Timer) e.getSource()).stop();  // Stop when fully revealed
